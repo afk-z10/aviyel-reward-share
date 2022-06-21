@@ -34,7 +34,7 @@ async function getPage() {
 
 export async function getScreenshot(html: string, type: FileType) {
   const page = await getPage();
-  await page.setViewport({ width: 500, height: 260 });
+  await page.setViewport({ width: 1000, height: 520 });
   await page.setContent(html, { waitUntil: "networkidle0" });
 
   const file = await page.screenshot({ type });
