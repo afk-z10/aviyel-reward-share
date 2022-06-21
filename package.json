@@ -6,7 +6,6 @@
   "dependencies": {
     "axios": "^0.27.2",
     "chrome-aws-lambda": "^10.1.0",
-    "global": "^4.4.0",
     "puppeteer-core": "^10.1.0",
     "regexparam": "^2.0.0"
   },
