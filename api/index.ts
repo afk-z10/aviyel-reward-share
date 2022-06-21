@@ -61,7 +61,9 @@ export default async function handler(
     );
 
     if (!reward) {
+      response.statusCode = 404;
       response.end();
+      return;
     }
 
     const html = getHTML(reward, userProfile);
@@ -80,7 +82,7 @@ export default async function handler(
     response.setHeader("Content-Type", `image/${fileType}`);
     response.setHeader(
       "Cache-Control",
-      `public, no-transform, s-maxage=600, max-age=300, stale-while-revalidate=600`
+      `public, s-maxage=60, stale-while-revalidate=600`
     );
     response.end(image);
   } catch (e) {
