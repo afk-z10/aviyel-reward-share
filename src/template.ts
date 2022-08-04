@@ -26,8 +26,8 @@ export function getHTML(reward: IRewardProject, theme: ITheme, size: ISize) {
     .filter((x) => x.badge_status === "claimed")
     .map((x) => {
       return {
-        image: reward.levels.find((l) => +l.step === +x.step).nft_url,
-        name: theme.levels.find((l) => +l.step === +x.step).name,
+        image: reward.levels.find((l) => +l.step === +x.step)!.nft_url,
+        name: theme.levels.find((l) => +l.step === +x.step)!.name,
       };
     });
 

@@ -1,26 +1,9 @@
 import { IncomingMessage, ServerResponse } from "http";
-import { parse } from "regexparam";
+import { parse, RouteParams } from "regexparam";
 import axios from "axios";
 import { getHTML } from "../src/template";
 import { getScreenshot } from "../src/chromium";
 import { IMyRewards } from "../src/types";
-
-function exec<T = {}>(
-  path: string,
-  result: {
-    keys: string[];
-    pattern: RegExp;
-  }
-) {
-  let i = 0,
-    out = {} as T;
-  let matches = result.pattern.exec(path);
-
-  while (matches && i < result.keys.length) {
-    out[result.keys[i]] = matches[++i] || null;
-  }
-  return out;
-}
 
 async function fetchJson<T = any>(url: string) {
   const res = await axios.get<T>(url);
@@ -29,23 +12,52 @@ async function fetchJson<T = any>(url: string) {
 
 const DOMAIN = "https://beta.aviyel.com";
 
+function parseRoute<T extends string>(
+  route: T,
+  path: string
+): RouteParams<T> | null {
+  const result = parse(route);
+  const matches = result.pattern.exec(path);
+
+  if (!matches) return null;
+
+  type IKeys = Array<keyof RouteParams<T>>;
+  type IValue = RouteParams<T>[keyof RouteParams<T>];
+
+  return (result.keys as IKeys).reduce(
+    (a, current, index) => (
+      (a[current] = matches[index + 1] as unknown as IValue), a
+    ),
+    {} as RouteParams<T>
+  );
+}
+
+const validTypes = ["jpeg", "png", "html", undefined];
+
 export default async function handler(
   request: IncomingMessage,
   response: ServerResponse
 ) {
   try {
-    const url = new URL(request.url, `http://${request.headers.host}`);
-    const { userslug, projectId, type } = exec<{
-      userslug: string;
-      projectId: string;
-      type: string;
-    }>(url.pathname, parse("/api/:userslug/:projectId/:type?"));
+    const url = new URL(request.url!, `http://${request.headers.host}`);
 
-    if (!userslug || !projectId) {
+    if (url.hash || url.search) {
+      response.statusCode = 400;
+      response.end();
+      return;
+    }
+
+    const route = "/api/:userslug/:projectId/:type?";
+
+    const parsedValue = parseRoute(route, request.url!);
+
+    if (!parsedValue || !validTypes.includes(parsedValue.type)) {
       response.statusCode = 404;
       response.end();
       return;
     }
+
+    const { userslug, projectId, type } = parsedValue;
 
     const rewards = await fetchJson<IMyRewards>(
       `${DOMAIN}/api/rewards/v1/reward/rewards/${userslug}`
@@ -68,7 +80,7 @@ export default async function handler(
 
     const theme = rewards.meta.theme_types.find(
       (theme) => theme.id === reward.rule.theme_type
-    );
+    )!;
 
     const html = getHTML(reward, theme, size);
     const isHTML = type === "html";
@@ -89,12 +101,12 @@ export default async function handler(
     response.setHeader("Content-Type", `image/${fileType}`);
     response.setHeader(
       "Cache-Control",
-      `public, s-maxage=300, stale-while-revalidate=600`
+      `public, max-age=300, s-maxage=900, stale-while-revalidate=604800`
     );
     response.end(image);
   } catch (e) {
     if (axios.isAxiosError(e)) {
-      if (e.response.status === 404) {
+      if (e.response?.status === 404) {
         response.statusCode = 404;
         response.end();
         return;
