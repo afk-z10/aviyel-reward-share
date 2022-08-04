@@ -3,7 +3,7 @@ import { parse } from "regexparam";
 import axios from "axios";
 import { getHTML } from "../src/template";
 import { getScreenshot } from "../src/chromium";
-import { IHoverProfileData, IMyRewards } from "../src/types";
+import { IMyRewards } from "../src/types";
 
 function exec<T = {}>(
   path: string,
@@ -47,14 +47,9 @@ export default async function handler(
       return;
     }
 
-    const [rewards, userProfile] = await Promise.all([
-      fetchJson<IMyRewards>(
-        `${DOMAIN}/api/rewards/v1/reward/rewards/${userslug}`
-      ),
-      fetchJson<IHoverProfileData>(
-        `${DOMAIN}/api/events/v1/user/${userslug}/hovercard`
-      ),
-    ]);
+    const rewards = await fetchJson<IMyRewards>(
+      `${DOMAIN}/api/rewards/v1/reward/rewards/${userslug}`
+    );
 
     const reward = rewards.projects.find(
       (p) => p.project_meta.cid === +projectId
@@ -66,7 +61,16 @@ export default async function handler(
       return;
     }
 
-    const html = getHTML(reward, userProfile);
+    const size = {
+      height: 120,
+      width: 560,
+    };
+
+    const theme = rewards.meta.theme_types.find(
+      (theme) => theme.id === reward.rule.theme_type
+    );
+
+    const html = getHTML(reward, theme, size);
     const isHTML = type === "html";
     if (isHTML) {
       response.statusCode = 200;
@@ -77,15 +81,22 @@ export default async function handler(
 
     const fileType = type === "jpeg" ? "jpeg" : "png";
 
-    const image = await getScreenshot(html, fileType);
+    const image = await getScreenshot(html, fileType, size);
     response.statusCode = 200;
     response.setHeader("Content-Type", `image/${fileType}`);
     response.setHeader(
       "Cache-Control",
-      `public, s-maxage=60, stale-while-revalidate=600`
+      `public, s-maxage=300, stale-while-revalidate=600`
     );
     response.end(image);
   } catch (e) {
+    if (axios.isAxiosError(e)) {
+      if (e.response.status === 404) {
+        response.statusCode = 404;
+        response.end();
+        return;
+      }
+    }
     response.statusCode = 500;
     response.setHeader("Content-Type", "text/html");
     response.end("<h1>Internal Error</h1><p>Sorry, there was a problem</p>");

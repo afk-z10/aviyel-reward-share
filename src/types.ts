@@ -6,9 +6,16 @@ interface IHoverProfileData {
   userslug: string;
 }
 
+interface ITheme {
+  id: string;
+  levels: Array<{ name: string; step: string }>;
+}
+
 interface IMyRewards {
   // aviyel_custom_projects: number[];
-  // meta: IRewardConfigTemplate;
+  meta: {
+    theme_types: ITheme[];
+  };
   projects: IRewardProject[];
 }
 
@@ -16,6 +23,9 @@ interface IRewardProject {
   project_meta: IProjectMinimal;
   levels: Array<{ nft_url: string; step: number }>;
   rewards: Array<{ step: number; badge_status?: "claimed" }>;
+  rule: {
+    theme_type: string;
+  };
 }
 
 interface IProjectMinimal {
@@ -25,4 +35,9 @@ interface IProjectMinimal {
   slug: string;
 }
 
-export type { IMyRewards, IHoverProfileData, IRewardProject };
+interface ISize {
+  width: number;
+  height: number;
+}
+
+export type { IMyRewards, IHoverProfileData, IRewardProject, ITheme, ISize };
