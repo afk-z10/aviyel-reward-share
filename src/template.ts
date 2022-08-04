@@ -47,6 +47,7 @@ export function getHTML(reward: IRewardProject, theme: ITheme, size: ISize) {
         width: ${size.width}px;
         display: flex;
         align-items: center;
+        zoom: 2;
       }
     </style>
     <body>
@@ -59,9 +60,9 @@ export function getHTML(reward: IRewardProject, theme: ITheme, size: ISize) {
               crossorigin="anonymous"
               style="margin-bottom:0.5rem"
             />
-            <span style="font-size:11px;line-height:16px;color:#464554"
-              >${name}</span
-            >
+            <div style="font-size:11px;line-height:16px;color:#464554">
+              ${name}
+            </div>
           </div>`
       )}
     </body>`;

@@ -81,7 +81,10 @@ export default async function handler(
 
     const fileType = type === "jpeg" ? "jpeg" : "png";
 
-    const image = await getScreenshot(html, fileType, size);
+    const image = await getScreenshot(html, fileType, {
+      height: size.height * 2,
+      width: size.width * 2,
+    });
     response.statusCode = 200;
     response.setHeader("Content-Type", `image/${fileType}`);
     response.setHeader(
