@@ -2,8 +2,6 @@ import core from "puppeteer-core";
 import chrome from "chrome-aws-lambda";
 import { ISize } from "./types";
 
-type FileType = "png" | "jpeg";
-
 let _page: core.Page | null;
 
 const isDev = !process.env.AWS_REGION;
@@ -33,11 +31,11 @@ async function getPage() {
   return _page;
 }
 
-export async function getScreenshot(html: string, type: FileType, size: ISize) {
+export async function getScreenshot(html: string, size: ISize) {
   const page = await getPage();
   await page.setViewport(size);
   await page.setContent(html, { waitUntil: "networkidle0" });
 
-  const file = await page.screenshot({ type });
+  const file = await page.screenshot({ type: "png" });
   return file;
 }

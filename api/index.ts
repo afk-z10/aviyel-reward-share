@@ -32,8 +32,7 @@ function parseRoute<T extends string>(
   );
 }
 
-const validTypes = ["jpeg", "png", "html", undefined];
-
+const validTypes = ["html", undefined];
 export default async function handler(
   request: IncomingMessage,
   response: ServerResponse
@@ -83,22 +82,19 @@ export default async function handler(
     )!;
 
     const html = getHTML(reward, theme, size);
-    const isHTML = type === "html";
-    if (isHTML) {
+    if (type === "html") {
       response.statusCode = 200;
       response.setHeader("Content-Type", "text/html");
       response.end(html);
       return;
     }
 
-    const fileType = type === "jpeg" ? "jpeg" : "png";
-
-    const image = await getScreenshot(html, fileType, {
+    const image = await getScreenshot(html, {
       height: size.height * 2,
       width: size.width * 2,
     });
     response.statusCode = 200;
-    response.setHeader("Content-Type", `image/${fileType}`);
+    response.setHeader("Content-Type", "image/png");
     response.setHeader(
       "Cache-Control",
       `public, max-age=300, s-maxage=900, stale-while-revalidate=604800`

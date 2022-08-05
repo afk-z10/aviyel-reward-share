@@ -32,7 +32,7 @@ export function getHTML(reward: IRewardProject, theme: ITheme, size: ISize) {
     });
 
   return html`<link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400"
       rel="stylesheet"
     />
     <style>
