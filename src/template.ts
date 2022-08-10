@@ -1,7 +1,10 @@
 import type { IRewardProject, ISize, ITheme } from "./types";
-const DOMAIN = "https://beta.aviyel.com";
-function prefixIfNeeded(urlString: string) {
-  return new URL(urlString, DOMAIN).href;
+
+function rewriteImageURL(urlString: string, host: string) {
+  return urlString.replace(
+    "/assets/uploads/rewards/project_rewards",
+    `${host}/images`
+  );
 }
 
 type StringLike = string | number;
@@ -21,7 +24,12 @@ function html(
   return htmlString;
 }
 
-export function getHTML(reward: IRewardProject, theme: ITheme, size: ISize) {
+export function getHTML(
+  reward: IRewardProject,
+  theme: ITheme,
+  size: ISize,
+  host: string
+) {
   const rewards = reward.rewards
     .filter((x) => x.badge_status === "claimed")
     .map((x) => {
@@ -31,39 +39,38 @@ export function getHTML(reward: IRewardProject, theme: ITheme, size: ISize) {
       };
     });
 
-  return html`<link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400"
-      rel="stylesheet"
-    />
-    <style>
-      * {
-        position: relative;
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        font-family: "Inter", sans-serif;
-        height: ${size.height}px;
-        width: ${size.width}px;
-        display: flex;
-        align-items: center;
-        zoom: 2;
-      }
-    </style>
-    <body>
-      ${rewards.map(
-        ({ image, name }) =>
-          html`<div style="padding:0.5rem 1rem;text-align:center">
-            <img
-              src="${prefixIfNeeded(image)}"
-              width="80px"
-              crossorigin="anonymous"
-              style="margin-bottom:0.5rem"
-            />
-            <div style="font-size:11px;line-height:16px;color:#464554">
-              ${name}
-            </div>
-          </div>`
-      )}
-    </body>`;
+  return html`<svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 ${size.width} ${size.height}"
+    width="${size.width}"
+    height="${size.height}"
+  >
+    <defs>
+      <style type="text/css">
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400");
+      </style>
+    </defs>
+
+    ${rewards.map(({ image, name }, i) => {
+      let x = i * 80 + (2 * i + 1) * 8;
+
+      return html` <image
+          href="${rewriteImageURL(image, host)}"
+          width="80"
+          height="80"
+          x="${x}"
+          y="8"
+        />
+        <text
+          x="${x + 88 / 2}"
+          y="110"
+          font-size="11"
+          fill="#464554"
+          text-anchor="middle"
+          style="font-family: 'Inter';"
+        >
+          ${name}</text
+        >`;
+    })}
+  </svg>`;
 }

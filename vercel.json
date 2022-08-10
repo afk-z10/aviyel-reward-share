@@ -1,14 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "functions": {
-    "api/**": {
-      "memory": 1024
-    }
-  },
   "rewrites": [
     {
-      "source": "/(.+)",
-      "destination": "/api"
+      "source": "/images/(.+)",
+      "destination": "https://beta.aviyel.com/assets/uploads/rewards/project_rewards/$1"
     }
   ]
 }
