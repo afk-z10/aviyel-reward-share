@@ -1,10 +1,7 @@
 import type { IRewardProject, ISize, ITheme } from "./types";
 
-function rewriteImageURL(urlString: string, host: string) {
-  return urlString.replace(
-    "/assets/uploads/rewards/project_rewards",
-    `${host}/images`
-  );
+function rewriteImageURL(urlString: string) {
+  return `https://beta.aviyel.com${urlString}`;
 }
 
 type StringLike = string | number;
@@ -24,11 +21,25 @@ function html(
   return htmlString;
 }
 
-export function getHTML(
+function base64ToBrowser(buffer: ArrayBuffer) {
+  return btoa(
+    Array.from(new Uint8Array(buffer))
+      .map((bin) => String.fromCharCode(bin))
+      .join("")
+  );
+}
+
+async function toDataURL(url: string) {
+  const response = await fetch(url);
+  const buffer = await response.arrayBuffer();
+  const base64 = base64ToBrowser(buffer);
+  return `data:image/png;base64,${base64}`;
+}
+
+export async function getHTML(
   reward: IRewardProject,
   theme: ITheme,
-  size: ISize,
-  host: string
+  size: ISize
 ) {
   const rewards = reward.rewards
     .filter((x) => x.badge_status === "claimed")
@@ -39,23 +50,31 @@ export function getHTML(
       };
     });
 
+  const images = await Promise.all(
+    rewards.map(({ image }) => toDataURL(rewriteImageURL(image)))
+  );
+
   return html`<svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 ${size.width} ${size.height}"
-    width="${size.width}"
-    height="${size.height}"
+    width="${size.width * 2}"
+    height="${size.height * 2}"
   >
-    <defs>
-      <style type="text/css">
-        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400");
-      </style>
-    </defs>
-
-    ${rewards.map(({ image, name }, i) => {
+    <style>
+      text {
+        fill: #464554;
+      }
+      @media (prefers-color-scheme: dark) {
+        text {
+          fill: #fff;
+        }
+      }
+    </style>
+    ${rewards.map(({ name }, i) => {
       let x = i * 80 + (2 * i + 1) * 8;
 
       return html` <image
-          href="${rewriteImageURL(image, host)}"
+          href="${images[i]}"
           width="80"
           height="80"
           x="${x}"
@@ -65,9 +84,8 @@ export function getHTML(
           x="${x + 88 / 2}"
           y="110"
           font-size="11"
-          fill="#464554"
           text-anchor="middle"
-          style="font-family: 'Inter';"
+          style="font-family: 'Inter', sans-serif;"
         >
           ${name}</text
         >`;

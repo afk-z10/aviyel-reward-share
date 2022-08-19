@@ -1,0 +1,54 @@
+<html>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css"
+  />
+  <style>
+    body {
+      background: #fff;
+    }
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #464554;
+      }
+    }
+  </style>
+
+  <form id="form">
+    <div>
+      <label>Aviyel username</label>
+      <input type="text" name="username" value="afk-z10" />
+    </div>
+    <div>
+      <label>Aviyel Project-ID</label>
+      <input type="number" name="project" value="110" />
+    </div>
+    <button>Submit</button>
+  </form>
+  <article />
+  <script type="module">
+    document.addEventListener("click", (e) => {
+      /**@type {HTMLElement}*/
+      const button = e.target;
+      if (button.id === "copy") {
+        navigator.clipboard
+          .writeText(`![Rewards image](${button.dataset.url})`)
+          .then(() => {
+            alert("Copied to clipboard");
+          });
+      }
+    });
+    const form = document.querySelector("form");
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      const x = new FormData(form);
+      const username = x.get("username");
+      const projectId = x.get("project");
+
+      const url = `${location.origin}/api?u=${username}&p=${projectId}`;
+
+      const article = document.querySelector("article");
+      article.innerHTML = `<a href="${url}" target="_blank"><img src="${url}" /></a><button id="copy" data-url="${url}">Copy Markdown</button>`;
+    };
+  </script>
+</html>

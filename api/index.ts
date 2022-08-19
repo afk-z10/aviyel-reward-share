@@ -43,7 +43,7 @@ export default async (request: Request) => {
       width: 480,
     };
 
-    const html = getHTML(reward, theme, size, host);
+    const html = await getHTML(reward, theme, size);
 
     return new Response(html, {
       headers: {
