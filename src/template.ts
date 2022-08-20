@@ -1,7 +1,7 @@
 import type { IRewardProject, ISize, ITheme } from "./types";
 
 function rewriteImageURL(urlString: string) {
-  return `https://beta.aviyel.com${urlString}`;
+  return `https://beta.aviyel.com/cdn-cgi/image/format=png,width=256${urlString}`;
 }
 
 type StringLike = string | number;
@@ -30,7 +30,9 @@ function base64ToBrowser(buffer: ArrayBuffer) {
 }
 
 async function toDataURL(url: string) {
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    headers: { "User-Agent": "rewards-image-generator" },
+  });
   const buffer = await response.arrayBuffer();
   const base64 = base64ToBrowser(buffer);
   return `data:image/png;base64,${base64}`;
@@ -73,7 +75,7 @@ export async function getHTML(
     ${rewards.map(({ name }, i) => {
       let x = i * 80 + (2 * i + 1) * 8;
 
-      return html` <image
+      return html`<image
           href="${images[i]}"
           width="80"
           height="80"
@@ -86,9 +88,8 @@ export async function getHTML(
           font-size="11"
           text-anchor="middle"
           style="font-family: 'Inter', sans-serif;"
-        >
-          ${name}</text
-        >`;
+          >${name}
+        </text>`;
     })}
   </svg>`;
 }

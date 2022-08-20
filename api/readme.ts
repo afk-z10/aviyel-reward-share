@@ -9,7 +9,9 @@ export const config = {
 const DOMAIN = "https://beta.aviyel.com";
 
 async function fetchJson<T = any>(url: string) {
-  const res = await fetch(url);
+  const res = await fetch(url, {
+    headers: { "User-Agent": "rewards-image-generator" },
+  });
   if (!res.ok) throw new Error("404");
   return res.json() as Promise<T>;
 }
@@ -53,6 +55,7 @@ export default async (request: Request) => {
       },
     });
   } catch (e) {
+    console.error(e);
     if (e === "404") {
       return new Response(void 0, { status: 404 });
     }

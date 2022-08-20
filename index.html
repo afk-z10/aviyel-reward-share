@@ -34,7 +34,7 @@
       const username = x.get("username");
       const projectId = x.get("project");
 
-      const url = `${location.origin}/api?u=${username}&p=${projectId}`;
+      const url = `${location.origin}/${username}/${projectId}/readme.svg`;
 
       const article = document.querySelector("article");
       article.innerHTML = `<a href="${url}" target="_blank"><img src="${url}" /></a><button id="copy" data-url="${url}">Copy Markdown</button>`;
