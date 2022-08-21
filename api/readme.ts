@@ -40,12 +40,7 @@ export default async (request: Request) => {
       (theme) => theme.id === reward.rule.theme_type
     )!;
 
-    const size = {
-      height: 120,
-      width: 480,
-    };
-
-    const html = await getHTML(reward, theme, size);
+    const html = await getHTML(reward, theme);
 
     return new Response(html, {
       headers: {

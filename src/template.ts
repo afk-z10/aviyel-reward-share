@@ -1,4 +1,4 @@
-import type { IRewardProject, ISize, ITheme } from "./types";
+import type { IRewardProject, ITheme } from "./types";
 
 function rewriteImageURL(urlString: string) {
   return `https://beta.aviyel.com/cdn-cgi/image/format=png,width=256${urlString}`;
@@ -38,11 +38,7 @@ async function toDataURL(url: string) {
   return `data:image/png;base64,${base64}`;
 }
 
-export async function getHTML(
-  reward: IRewardProject,
-  theme: ITheme,
-  size: ISize
-) {
+export async function getHTML(reward: IRewardProject, theme: ITheme) {
   const rewards = reward.rewards
     .filter((x) => x.badge_status === "claimed")
     .map((x) => {
@@ -56,11 +52,14 @@ export async function getHTML(
     rewards.map(({ image }) => toDataURL(rewriteImageURL(image)))
   );
 
+  const height = 120;
+  const width = 96 * rewards.length;
+
   return html`<svg
     xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 ${size.width} ${size.height}"
-    width="${size.width * 2}"
-    height="${size.height * 2}"
+    viewBox="0 0 ${width} ${height}"
+    width="${width * 2}"
+    height="${height * 2}"
   >
     <style>
       text {

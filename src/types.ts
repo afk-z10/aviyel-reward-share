@@ -35,9 +35,4 @@ interface IProjectMinimal {
   slug: string;
 }
 
-interface ISize {
-  width: number;
-  height: number;
-}
-
-export type { IMyRewards, IHoverProfileData, IRewardProject, ITheme, ISize };
+export type { IMyRewards, IHoverProfileData, IRewardProject, ITheme };
