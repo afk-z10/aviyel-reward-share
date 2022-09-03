@@ -5,6 +5,10 @@
   />
   <form id="form">
     <div>
+      <label>Production</label>
+      <input type="checkbox" name="production" />
+    </div>
+    <div>
       <label>Aviyel username</label>
       <input type="text" name="username" value="afk-z10" />
     </div>
@@ -21,7 +25,9 @@
       const button = e.target;
       if (button.id === "copy") {
         navigator.clipboard
-          .writeText(`![Rewards image](${button.dataset.url})`)
+          .writeText(
+            `[![Rewards image](${button.dataset.url})](${button.dataset.link})`
+          )
           .then(() => {
             alert("Copied to clipboard");
           });
@@ -33,11 +39,19 @@
       const x = new FormData(form);
       const username = x.get("username");
       const projectId = x.get("project");
+      const isProd = x.get("production") === "on";
 
-      const url = `${location.origin}/${username}/${projectId}/readme.svg`;
+      const BETA_DOMAIN = "https://beta.aviyel.com";
+      const DOMAIN = "https://aviyel.com";
+      const host = isProd ? DOMAIN : BETA_DOMAIN;
+
+      const url = `${location.origin}/${username}/${projectId}/readme.svg${
+        isProd ? "" : "?beta"
+      }`;
+      const linkURL = `${host}/user/${username}/${projectId}/rewards?log`;
 
       const article = document.querySelector("article");
-      article.innerHTML = `<a href="${url}" target="_blank"><img src="${url}" /></a><button id="copy" data-url="${url}">Copy Markdown</button>`;
+      article.innerHTML = `<a href="${url}" target="_blank"><img src="${url}" /></a><section><button id="copy" data-link="${linkURL}" data-url="${url}">Copy Markdown</button></section>`;
     };
   </script>
 </html>

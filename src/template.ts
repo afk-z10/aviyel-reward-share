@@ -1,7 +1,7 @@
 import type { IRewardProject, ITheme } from "./types";
 
-function rewriteImageURL(urlString: string) {
-  return `https://beta.aviyel.com/cdn-cgi/image/format=png,width=256${urlString}`;
+function rewriteImageURL(urlString: string, host: string) {
+  return `${host}/cdn-cgi/image/format=png,width=256${urlString}`;
 }
 
 type StringLike = string | number;
@@ -38,7 +38,11 @@ async function toDataURL(url: string) {
   return `data:image/png;base64,${base64}`;
 }
 
-export async function getHTML(reward: IRewardProject, theme: ITheme) {
+export async function getHTML(
+  reward: IRewardProject,
+  theme: ITheme,
+  host: string
+) {
   const rewards = reward.rewards
     .filter((x) => x.badge_status === "claimed")
     .map((x) => {
@@ -49,7 +53,7 @@ export async function getHTML(reward: IRewardProject, theme: ITheme) {
     });
 
   const images = await Promise.all(
-    rewards.map(({ image }) => toDataURL(rewriteImageURL(image)))
+    rewards.map(({ image }) => toDataURL(rewriteImageURL(image, host)))
   );
 
   const height = 120;
@@ -86,7 +90,7 @@ export async function getHTML(reward: IRewardProject, theme: ITheme) {
           y="110"
           font-size="11"
           text-anchor="middle"
-          style="font-family: 'Inter', sans-serif;"
+          style="font-family:sans-serif;"
           >${name}
         </text>`;
     })}
