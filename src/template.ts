@@ -57,7 +57,7 @@ export async function getHTML(
   );
 
   const height = 120;
-  const width = 96 * rewards.length;
+  const width = 96 * Math.max(rewards.length, 5);
 
   return html`<svg
     xmlns="http://www.w3.org/2000/svg"
